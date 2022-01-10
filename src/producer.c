@@ -1,46 +1,42 @@
 #include "kafka.h"
 
-typedef struct {
-    rd_kafka_t *rk;
-} producer;
-
-static producer* l_producer_retrieve(lua_State *L)
+static rd_kafka_t* l_producer_retrieve(lua_State *L)
 {
-    producer *p = luaL_checkudata(L, 1, "kafka.producer");
-    if (!p->rk)
+    rd_kafka_t **rk = luaL_checkudata(L, 1, "kafka.producer");
+    if (!*rk)
         luaL_error(L, "invalid kafka handle");
-    return p;
+    return *rk;
 }
 
 static int l_producer_produce(lua_State *L)
 {
-    producer *p = l_producer_retrieve(L);
+    rd_kafka_t *rk = l_producer_retrieve(L);
     const char *topic = luaL_checkstring(L, 2);
     size_t length = 0;
     const char *payload = luaL_checklstring(L, 3, &length);
-    return l_kafka_check(L, rd_kafka_producev(p->rk, RD_KAFKA_V_TOPIC(topic), RD_KAFKA_V_MSGFLAGS(RD_KAFKA_MSG_F_COPY), RD_KAFKA_V_VALUE((void*)payload, length), RD_KAFKA_V_OPAQUE(NULL), RD_KAFKA_V_END));
+    return l_kafka_check(L, rd_kafka_producev(rk, RD_KAFKA_V_TOPIC(topic), RD_KAFKA_V_MSGFLAGS(RD_KAFKA_MSG_F_COPY), RD_KAFKA_V_VALUE((void*)payload, length), RD_KAFKA_V_END));
 }
 
 static int l_producer_poll(lua_State *L)
 {
-    producer *p = l_producer_retrieve(L);
-    lua_pushinteger(L, rd_kafka_poll(p->rk, (int)lua_tointeger(L, 2)));
+    rd_kafka_t *rk = l_producer_retrieve(L);
+    lua_pushinteger(L, rd_kafka_poll(rk, (int)lua_tointeger(L, 2)));
     return 1;
 }
 
 static int l_producer_flush(lua_State *L)
 {
-    producer *p = l_producer_retrieve(L);
-    return l_kafka_check(L, rd_kafka_flush(p->rk, (int)lua_tointeger(L, 2)));
+    rd_kafka_t *rk = l_producer_retrieve(L);
+    return l_kafka_check(L, rd_kafka_flush(rk, (int)lua_tointeger(L, 2)));
 }
 
 static int l_producer_destroy(lua_State *L)
 {
-    producer *p = luaL_checkudata(L, 1, "kafka.producer");
-    if (p->rk)
+    rd_kafka_t **rk = luaL_checkudata(L, 1, "kafka.producer");
+    if (*rk)
     {
-        rd_kafka_destroy(p->rk);
-        p->rk = 0;
+        rd_kafka_destroy(*rk);
+        *rk = 0;
     }
     return 0;
 }
@@ -111,7 +107,7 @@ int l_producer_create(lua_State *L)
     }
 
     // create lua userdata
-    ((producer*)lua_newuserdata(L, sizeof(producer)))->rk = rk;
+    *(rd_kafka_t**)lua_newuserdata(L, sizeof(rd_kafka_t*)) = rk;
     luaL_getmetatable(L, "kafka.producer");
     lua_setmetatable(L, -2);
 
