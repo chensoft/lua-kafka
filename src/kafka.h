@@ -21,3 +21,4 @@ static int l_kafka_check(lua_State *L, rd_kafka_resp_err_t err)
 
 // internal
 int l_producer_create(lua_State *L);
+int l_consumer_create(lua_State *L);
