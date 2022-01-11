@@ -1,7 +1,7 @@
 #pragma once
 
+#include <librdkafka/rdkafka.h>
 #include <lauxlib.h>
-#include "rdkafka.h"
 
 // utilities
 static int l_kafka_error(lua_State *L, const char *err)
@@ -14,7 +14,10 @@ static int l_kafka_error(lua_State *L, const char *err)
 static int l_kafka_check(lua_State *L, rd_kafka_resp_err_t err)
 {
     if (err == RD_KAFKA_RESP_ERR_NO_ERROR)
-        return 0;
+    {
+        lua_pushboolean(L, 1);
+        return 1;
+    }
 
     return l_kafka_error(L, rd_kafka_err2str(err));
 }

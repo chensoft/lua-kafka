@@ -15,8 +15,8 @@ file(GLOB PROJ_INC src/*.h)
 file(GLOB PROJ_SRC src/*.c)
 
 # third party
-add_subdirectory(3rd/librdkafka)
 find_package(Lua REQUIRED)
+find_library(RDKAFKA rdkafka REQUIRED)
 
 # generate lib
 target_include_directories(kafka PRIVATE ${LUA_INCLUDE_DIR})
