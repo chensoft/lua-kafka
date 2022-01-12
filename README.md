@@ -2,6 +2,24 @@
 
 Lua bindings for Apache Kafka librdkafka library
 
+## Prepare
+
+#### Debian/Ubuntu
+
+```shell
+apt install librdkafka-dev
+```
+
+#### MacOS
+
+```shell
+brew install librdkafka
+```
+
+#### Other OS
+
+see https://github.com/edenhill/librdkafka
+
 ## Install
 
 build with cmake or run `luarocks install kafka`
