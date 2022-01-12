@@ -2,7 +2,7 @@
 # Jian Chen <admin@chensoft.com>
 # http://chensoft.com
 cmake_minimum_required(VERSION 3.1)
-project(kafka VERSION 1.8.2 LANGUAGES C)
+project(kafka VERSION 1.0.0 LANGUAGES C)
 
 add_library(kafka MODULE "")
 

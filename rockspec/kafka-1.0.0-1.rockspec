@@ -1,8 +1,8 @@
 package = "kafka"
-version = "1.8.2-1"
+version = "1.0.0-1"
 source = {
    url = "git://github.com/chensoft/lua-kafka",
-   branch = "v1.8.2"
+   branch = "v1.0.0"
 }
 description = {
    summary = "Lua bindings for Apache Kafka librdkafka library",
