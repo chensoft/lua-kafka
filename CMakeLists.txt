@@ -16,12 +16,13 @@ file(GLOB PROJ_SRC src/*.c)
 
 # third party
 find_package(Lua REQUIRED)
-find_library(RDKAFKA rdkafka REQUIRED)
+find_path(RDKAFKA_INCLUDE_DIR librdkafka/rdkafka.h)
+find_library(RDKAFKA_LIBRARIES rdkafka REQUIRED)
 
 # generate lib
-target_include_directories(kafka PRIVATE ${LUA_INCLUDE_DIR})
+target_include_directories(kafka PRIVATE ${RDKAFKA_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
 target_sources(kafka PRIVATE ${PROJ_INC} ${PROJ_SRC})
-target_link_libraries(kafka rdkafka ${LUA_LIBRARIES})
+target_link_libraries(kafka ${RDKAFKA_LIBRARIES} ${LUA_LIBRARIES})
 
 # install lib
 install(TARGETS kafka DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
