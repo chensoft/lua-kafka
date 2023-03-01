@@ -1,4 +1,4 @@
-local settings = {["bootstrap.servers"] = "localhost"}
+local settings = {["bootstrap.servers"] = "localhost:9092"}
 local producer = require("kafka").producer(settings)
 
 for i = 1, 100 do

@@ -37,7 +37,7 @@ build with cmake or run `luarocks install kafka`
 * close()
 
 ```lua
-local settings = {["bootstrap.servers"] = "localhost"}
+local settings = {["bootstrap.servers"] = "localhost:9092"}
 local producer = require("kafka").producer(settings)
 
 for i = 1, 100 do
@@ -57,7 +57,7 @@ producer:close()
 * close()
 
 ```lua
-local settings = {["bootstrap.servers"] = "localhost", ["group.id"] = "1", ["auto.offset.reset"] = "earliest"}
+local settings = {["bootstrap.servers"] = "localhost:9092", ["group.id"] = "1", ["auto.offset.reset"] = "earliest"}
 local consumer = require("kafka").consumer(settings)
 
 consumer:subscribe("hello1", "hello2")

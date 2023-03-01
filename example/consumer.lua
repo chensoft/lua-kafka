@@ -1,4 +1,4 @@
-local settings = {["bootstrap.servers"] = "localhost", ["group.id"] = "1", ["auto.offset.reset"] = "earliest"}
+local settings = {["bootstrap.servers"] = "localhost:9092", ["group.id"] = "1", ["auto.offset.reset"] = "earliest"}
 local consumer = require("kafka").consumer(settings)
 
 consumer:subscribe("hello1", "hello2")
