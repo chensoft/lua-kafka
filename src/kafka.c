@@ -6,7 +6,11 @@ static const luaL_Reg funcs[] = {
         {NULL, NULL}
 };
 
+#ifdef _MSC_VER
+__declspec(dllexport) int luaopen_kafka(lua_State *L)
+#else
 int luaopen_kafka(lua_State *L)
+#endif
 {
     luaL_checkversion(L);
     luaL_newmetatable(L, "kafka");
