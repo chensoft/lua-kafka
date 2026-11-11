@@ -1,4 +1,5 @@
 #include "kafka.h"
+#include <stdlib.h>
 
 static rd_kafka_t* l_producer_retrieve(lua_State *L)
 {
@@ -6,6 +7,14 @@ static rd_kafka_t* l_producer_retrieve(lua_State *L)
     if (!*rk)
         luaL_error(L, "invalid kafka handle");
     return *rk;
+}
+
+// dr_cb: produce()/poll() succeeding doesn't mean the broker confirmed delivery
+static void l_producer_dr_cb(rd_kafka_t *rk, const rd_kafka_message_t *msg, void *opaque)
+{
+    (void)rk;
+    if (msg->err != RD_KAFKA_RESP_ERR_NO_ERROR)
+        (*(long*)opaque)++;
 }
 
 static int l_producer_produce(lua_State *L)
@@ -30,11 +39,22 @@ static int l_producer_flush(lua_State *L)
     return l_kafka_check(L, rd_kafka_flush(rk, (int)lua_tointeger(L, 2)));
 }
 
+// drains and resets the delivery-failure count since the last call
+static int l_producer_delivery_failures(lua_State *L)
+{
+    rd_kafka_t *rk = l_producer_retrieve(L);
+    long *failed = (long*)rd_kafka_opaque(rk);
+    lua_pushinteger(L, *failed);
+    *failed = 0;
+    return 1;
+}
+
 static int l_producer_destroy(lua_State *L)
 {
     rd_kafka_t **rk = luaL_checkudata(L, 1, "kafka.producer");
     if (*rk)
     {
+        free(rd_kafka_opaque(*rk));
         rd_kafka_destroy(*rk);
         *rk = 0;
     }
@@ -45,6 +65,7 @@ static const struct luaL_Reg funcs[] = {
         {"produce", l_producer_produce},
         {"poll", l_producer_poll},
         {"flush", l_producer_flush},
+        {"delivery_failures", l_producer_delivery_failures},
         {"close", l_producer_destroy},
         {NULL, NULL}
 };
@@ -103,9 +124,14 @@ int l_producer_create(lua_State *L)
     }
 
     // create kafka client
+    long *delivery_failures = calloc(1, sizeof(long));
+    rd_kafka_conf_set_opaque(conf, delivery_failures);
+    rd_kafka_conf_set_dr_msg_cb(conf, l_producer_dr_cb);
+
     rd_kafka_t *rk = rd_kafka_new(RD_KAFKA_PRODUCER, conf, err, sizeof(err));
     if (!rk)
     {
+        free(delivery_failures);
         rd_kafka_conf_destroy(conf);
         return l_kafka_error(L, err);
     }

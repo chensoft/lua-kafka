@@ -34,6 +34,7 @@ build with cmake or run `luarocks install kafka`
 * produce(topic, payload)
 * poll(timeout_ms)
 * flush(timeout_ms)
+* delivery_failures() -- count of delivery failures since the last call (resets to 0)
 * close()
 
 ```lua
