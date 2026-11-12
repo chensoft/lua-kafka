@@ -101,9 +101,13 @@ int l_consumer_create(lua_State *L)
         lua_setfield(L, -2, "__index");
         lua_pushcfunction(L, l_consumer_destroy);
         lua_setfield(L, -2, "__gc");
-
-        lua_pop(L, 1);
     }
+
+    // luaL_newmetatable always pushes the metatable onto the stack, even when
+    // it already existed (return value 0). Without this unconditional pop, a
+    // second call to l_consumer_create leaves it on the stack, corrupting the
+    // following lua_next() loop over the config table.
+    lua_pop(L, 1);
 
     luaL_checktype(L, 1, LUA_TTABLE);
 
