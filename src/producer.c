@@ -124,7 +124,13 @@ int l_producer_create(lua_State *L)
     }
 
     // create kafka client
-    long *delivery_failures = calloc(1, sizeof(long));
+    long *delivery_failures = calloc(1, sizeof(*delivery_failures));
+    if (!delivery_failures)
+    {
+        rd_kafka_conf_destroy(conf);
+        return l_kafka_error(L, "out of memory");
+    }
+
     rd_kafka_conf_set_opaque(conf, delivery_failures);
     rd_kafka_conf_set_dr_msg_cb(conf, l_producer_dr_cb);
 
